@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IMDb Movies</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+        body {
+          background-color: #333;
+          color: white;
+        }
+      </style
+  </head>
+
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        
+        <div class="col-md-6">
+          <div class="row" id="appendData"></div>
+        </div>
+
+        <div class="col-md-6 position-fixed" style="top: 0; right: 0;">
+          <div id="detailedInfo" class="p-4" style="max-width: 100%; max-height: 700px; overflow-y: auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const showDetails = (movie) => {
+        const detailedInfo = document.getElementById("detailedInfo");
+        detailedInfo.innerHTML = `<h5>${movie.l}</h5>
+                                  <img src="${movie.i.imageUrl}" alt="${movie.l} poster" style="max-width: 100%; max-height: 400px;">
+                                  <p>Year: ${movie.y}</p>
+                                  <p>Actors: ${movie.s}</p>`;
+      };
+
+      const createCard = (movie) => {
+        let wrapper = document.createElement("div");
+        wrapper.className = "card col-md-5 m-3";
+        wrapper.style.width = "18rem";
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+
+        let posterImageCard = document.createElement("img");
+        posterImageCard.className = "card-img-top";
+        posterImageCard.src = movie.i.imageUrl;
+        posterImageCard.alt = `${movie.l} poster`;
+        cardBody.appendChild(posterImageCard);
+
+        let title = document.createElement("h5");
+        title.className = "card-title";
+        title.textContent = movie.l;
+
+        let moreButton = document.createElement("button");
+        moreButton.className = "btn btn-primary";
+        moreButton.textContent = "More";
+        moreButton.addEventListener("click", () => {
+          showDetails(movie);
+        });
+
+        cardBody.appendChild(title);
+        cardBody.appendChild(moreButton);
+
+        wrapper.appendChild(cardBody);
+
+        document.getElementById("appendData").appendChild(wrapper);
+      };
+
+      const getData = async () => {
+        const url = 'https://imdb8.p.rapidapi.com/auto-complete?q=breaking';
+        const options = {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Key': '0801c5d86cmshf758e1f9899f090p1fc753jsn1fc2bb41b999',
+            'X-RapidAPI-Host': 'imdb8.p.rapidapi.com'
+          }
+        };
+
+        try {
+          const response = await fetch(url, options);
+          const data = await response.json();
+          return data.d;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          return [];
+        }
+      };
+
+      const displayData = async () => {
+        const moviesData = await getData();
+        const appendDataElement = document.getElementById("appendData");
+
+        moviesData.forEach(movie => {
+          createCard(movie);
+        });
+      };
+
+      displayData();
+    </script>
+  </body>
+</html>
